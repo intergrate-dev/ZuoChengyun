@@ -8,20 +8,20 @@ public class Problem_31_KMPAlgorithm {
 		}
 		char[] ss = s.toCharArray();
 		char[] ms = m.toCharArray();
-		int si = 0;
-		int mi = 0;
+		int si = 0; // 主串下标
+		int mj = 0; // 匹配串下标
 		int[] next = getNextArray(ms);
-		while (si < ss.length && mi < ms.length) {
-			if (ss[si] == ms[mi]) {
+		while (si < ss.length && mj < ms.length) {
+			if (ss[si] == ms[mj]) {
 				si++;
-				mi++;
-			} else if (next[mi] == -1) {
-				si++;
+				mj++;
+			} else if (next[mj] == -1) { // m0 
+				si++; // 不匹配，next值为-1时，si 后移
 			} else {
-				mi = next[mi];
+				mj = next[mj]; // 不匹配，（正常情况下）mj 回退
 			}
 		}
-		return mi == ms.length ? si - mi : -1;
+		return mj == ms.length ? si - mj : -1;
 	}
 
 	public static int[] getNextArray(char[] ms) {
@@ -29,17 +29,18 @@ public class Problem_31_KMPAlgorithm {
 			return new int[] { -1 };
 		}
 		int[] next = new int[ms.length];
-		next[0] = -1;
-		next[1] = 0;
+		next[0] = -1; // 默认
+		next[1] = 0; // 默认
 		int pos = 2;
-		int cn = 0;
+		int k = 0; // 记录回退位置值，匹配时自增，未匹配非0时取其对应的next值（即回溯）
 		while (pos < next.length) {
-			if (ms[pos - 1] == ms[cn]) {
-				next[pos++] = ++cn;
-			} else if (cn > 0) {
-				cn = next[cn];
+			// ms[k]的作用？
+			if (ms[pos - 1] == ms[k]) {
+				next[pos++] = ++k;
+			} else if (k > 0) {
+				k = next[k]; // "-" 向前回溯，匹配确定回退位置
 			} else {
-				next[pos++] = 0;
+				next[pos++] = 0; // 空白
 			}
 		}
 		return next;
@@ -47,9 +48,25 @@ public class Problem_31_KMPAlgorithm {
 
 	public static void main(String[] args) {
 		String str = "abcabcababaccc";
-		String match = "ababa";
+		String match = "ababacfabd"; 
+		//pos-1:     a  b  a  b  a      c  f  b  a  b
+	    //next: [-1, 0, 0, 1, 2, 0,     0, 0, 1, 2]
+		//k: 0       _     1  2  3  2-1-0, 0  1  2
+		/**
+		 * m1 b 与 a未匹配上，即next设为0 
+		 * m2 a 与 a匹配上了，即next值+1，k +1
+		 * m3 b 与 b匹配上了，即next值+1，k +1
+		 * m4 a 与 a匹配上了，即next值+1，k +1， k=3
+		 * m5 c 与 b未匹配上，k=2,1,0, then next=0
+		 * 
+		 *  */ 
 		System.out.println(getIndexOf(str, match));
-
 	}
+
+	/**
+	 * KMP与Next数组
+	 * https://juejin.cn/post/7179394946351235127
+	 * 
+	 */
 
 }
